@@ -1,0 +1,57 @@
+<html>
+
+<head>
+    <title>A Leaflet map!</title>
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <link rel="stylesheet" href="leaflet/Leaflet.NavBar.css" />
+    <script src="leaflet/leaflet.js"></script>
+    <script src="leaflet/Leaflet.NavBar.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="map"></div>
+
+    <script>
+        // initialize the map
+        // Atlanta Coordinates 33.74, -84.38
+        var map = L.map('map').setView([33.7490, -84.3880], 13);
+
+        // load a tile layer
+        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 22,
+            minZoom: 10
+        }).addTo(map);
+
+        // load GeoJSON from an external file
+        $.getJSON("geojson/harbour.geojson", function(data) {
+            // custom icon 
+            var harbourIcon = L.icon({
+                iconUrl: 'images/h4.png',
+                iconSize: [25, 30]
+            });
+            L.geoJson(data, {
+                pointToLayer: function(feature, latlng) {
+                    return L.marker(latlng, {
+                        icon: harbourIcon
+                    });
+                }
+
+            }).addTo(map);
+            // Default Icon
+            //L.geoJson(data).addTo(map);
+        });
+        // Add home, forward & backward button uses Leaflet.NavBar package
+        // https://github.com/davidchouse/Leaflet.NavBar 
+        L.control.navbar().addTo(map);
+    </script>
+</body>
+
+</html>
