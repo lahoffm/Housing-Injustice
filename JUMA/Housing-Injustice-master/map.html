@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Map</title>
+    <!--Import Google Icon Font-->
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="../materialize.css" media="screen,projection"/>
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--Import jQuery before materialize.js-->
+    <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script> -->
+    <script type="text/javascript" src="../materialize.js"></script>
+    <!--created stylesheet for juma -->
+    <link type="text/css" rel="stylesheet" href="../juma_style.css" media="screen,projection"/>
+    <!-- leaflet -->
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <link rel="stylesheet" href="leaflet/Leaflet.NavBar.css" />
+    <script src="leaflet/leaflet.js"></script>
+    <script src="leaflet/Leaflet.NavBar.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!--Creates color changing effect for the background of pages -->
+    <style>
+        html {
+
+            height: 100%;
+            width: 100%;
+            left:0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            position: absolute;
+            background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
+            background-size: 1800% 1800%;
+
+            -webkit-animation: rainbow 18s ease infinite;
+            -z-animation: rainbow 18s ease infinite;
+            -o-animation: rainbow 18s ease infinite;
+            animation: rainbow 18s ease infinite;
+        }
+
+        @-webkit-keyframes rainbow {
+            0%{background-position:0% 82%}
+            50%{background-position:100% 19%}
+            100%{background-position:0% 82%}
+        }
+        @-moz-keyframes rainbow {
+            0%{background-position:0% 82%}
+            50%{background-position:100% 19%}
+            100%{background-position:0% 82%}
+        }
+        @-o-keyframes rainbow {
+            0%{background-position:0% 82%}
+            50%{background-position:100% 19%}
+            100%{background-position:0% 82%}
+        }
+        @keyframes rainbow {
+            0%{background-position:0% 82%}
+            50%{background-position:100% 19%}
+            100%{background-position:0% 82%}
+
+        }
+        #map {
+            /*width: 900px;*/
+            height: 700px;
+            z-index: 1;
+            position:relative;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- header with logo -->
+    <header>
+        <nav>
+            <div class="nav-wrapper white s12">
+                <a href="#" class="brand-logo left-align" style="position:relative"><img class="responsive-img"style="height: 56px" id="logo" src="../juma.png"/></a>
+                <a href="#" class="brand-logo center"><img class="responsive-img"style="height: 56px" id="logo2" src="../juma2.png"/></a>
+            </div>
+        </nav>
+    </header>
+
+    <!--page content-->
+    <main>
+        <div class="row">
+            <!-- toggle buttons for various map overlay options -->
+            <div class="col s4" id="toggle_box">
+                <!-- racial data toggle -->
+                <div style="float:left">
+                    <label>Racial</label>
+                    <div class="switch"><label>Off<input disabled type="checkbox" ><span class="lever"></span>On</label></div>
+
+                </div>
+                <!-- price data toggle -->
+                <div  style="float:left">
+                    <label>Harbour Properties</label>
+                    <div class="switch"><label>Off<input  type="checkbox" checked><span class="lever"></span>On</label></div>
+                </div>
+            </div>
+            <!-- "add" button for adding additional property to database & map -->
+            <!--
+            <div class="col s2 offset-s7" style="position:relative; top:10px; left:50px">
+                <button onClick="location.href='add_property.html';" class="btn btn-floating pulse green lighten-3 left-align" style=" "><i class="material-icons">add</i></button>
+            </div>
+            -->
+        </div>
+
+        <div class="row">
+            <!-- contains property information when property is clicked -->
+            <div class="col s11 m12 l12">
+                <div class="map-overlay">
+                    <h2>Click a Harbour property!</h2>
+                    <div id="pd">
+                        <p></p>
+                    </div>
+                </div>
+
+                <!-- holds the map -->
+                <div class="z-depth-3" id="map" >
+
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <script>
+            // initialize the map
+            // Atlanta Coordinates 33.74, -84.38
+            var map = L.map('map').setView([33.7490, -84.3880], 13);
+
+            // load a tile layer
+            L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 22,
+                minZoom: 10
+            }).addTo(map);
+
+            // load GeoJSON from an external file
+            $.getJSON("geojson/harbour.geojson", function(data) {
+                // custom icon
+                var harbourIcon = L.icon({
+                    iconUrl: 'images/h4.png',
+                    iconSize: [25, 30]
+                });
+                L.geoJson(data, {
+                    pointToLayer: function(feature, latlng) {
+                        return L.marker(latlng, {
+                            icon: harbourIcon
+                        });
+                    }
+                //on marker click, add or edit harbour information
+                }).addTo(map).on("click",function(event){
+                    document.getElementById('pd').innerHTML = "<a class='btn-floating btn-large red'> <i class='large material-icons'>mode_edit</i> </a>";
+
+                    }
+                );
+                // Default Icon
+                //L.geoJson(data).addTo(map);
+            });
+            // Add home, forward & backward button uses Leaflet.NavBar package
+            // https://github.com/davidchouse/Leaflet.NavBar
+            L.control.navbar().addTo(map);
+
+        </script>
+    </main>
+
+    <!-- footer with logo -->
+    <footer class="page-footer white">
+
+        <div class="footer-copyright">
+            <div class="container center-align ">
+                <p style="color: black ">&#9400; DSSG 2017</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
