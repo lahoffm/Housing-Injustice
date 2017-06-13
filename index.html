@@ -72,10 +72,42 @@
             //L.geoJson(data).addTo(map);
         });
         // Add home, forward & backward button uses Leaflet.NavBar package
-        // https://github.com/davidchouse/Leaflet.NavBar 
+        // https://github.com/davidchouse/Leaflet.NavBar
+
+        // Trying to add layer for African-American Population percent
+        var race = L.layerGroup();
+        var eco = L.layerGroup();
+
+        function onEachFeature1(feature, layer) {
+            // feature.addTo(race);
+            // does this feature have a property named popupContent?
+            //  if (feature.properties && feature.properties.popupContent) {
+            //      layer.bindPopup(feature.properties.popupContent);
+            //  }
+        }
+
+        function onEachFeature2(feature, layer) {
+            //feature.addTo(race);
+        }
+
+        $.getJSON("geojson/racial.geojson", function(data) {
+            L.geoJSON(data, {
+                onEachFeature: onEachFeature1
+            }).addTo(race);
+        });
+
+
+        $.getJSON("geojson/race_eco.geojson", function(data) {
+            L.geoJSON(data, {
+                onEachFeature: onEachFeature2
+            }).addTo(eco);
+        });
+
         L.control.navbar().addTo(map);
         var overlays = {
-            "Harbour": harbour
+            "Harbour": harbour,
+            "Race": race,
+            "Economic": eco
         };
 
         L.control.layers(null, overlays).addTo(map);
