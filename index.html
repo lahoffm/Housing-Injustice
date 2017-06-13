@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>A Leaflet map!</title>
+    <title>Housing Injustice Vis</title>
     <link rel="stylesheet" href="leaflet/leaflet.css" />
     <link rel="stylesheet" href="leaflet/Leaflet.NavBar.css" />
     <script src="leaflet/leaflet.js"></script>
@@ -30,6 +30,28 @@
             minZoom: 10
         }).addTo(map);
 
+        // new L.Control.GeoSearch({
+        //     searchLabel: 'The search string',
+        //     notFoundMessage: 'Not found',
+        //     position: 'topcenter',
+        //     showMarker: true,
+        //     selected: 0,
+        //     providers: [{
+        //         name: 'GISFile',
+        //         provider: new L.GeoSearch.Provider.GISFile({
+        //             type: 'layer',
+        //             name: 'world'
+        //         })
+        //     }, {
+        //         name: 'Google',
+        //         provider: new L.GeoSearch.Provider.Google()
+        //     }, {
+        //         name: 'OpenStreetMap',
+        //         provider: new L.GeoSearch.Provider.OpenStreetMap()
+        //     }]
+        // }).addTo(map);
+        // Layer Harbour
+        var harbour = L.layerGroup();
         // load GeoJSON from an external file
         $.getJSON("geojson/harbour.geojson", function(data) {
             // custom icon 
@@ -39,9 +61,10 @@
             });
             L.geoJson(data, {
                 pointToLayer: function(feature, latlng) {
-                    return L.marker(latlng, {
+                    L.marker(latlng, {
                         icon: harbourIcon
-                    });
+                    }).addTo(harbour);
+                    //.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
                 }
 
             }).addTo(map);
@@ -51,6 +74,11 @@
         // Add home, forward & backward button uses Leaflet.NavBar package
         // https://github.com/davidchouse/Leaflet.NavBar 
         L.control.navbar().addTo(map);
+        var overlays = {
+            "Harbour": harbour
+        };
+
+        L.control.layers(null, overlays).addTo(map);
     </script>
 </body>
 
