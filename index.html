@@ -26,7 +26,7 @@
 
         // load a tile layer
         L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 22,
+            maxZoom: 20,
             minZoom: 10
         }).addTo(map);
 
@@ -52,6 +52,8 @@
         // }).addTo(map);
         // Layer Harbour
         var harbour = L.layerGroup();
+        var race = L.layerGroup();
+        var eco = L.layerGroup();
         // load GeoJSON from an external file
         $.getJSON("geojson/harbour.geojson", function(data) {
             // custom icon 
@@ -72,34 +74,25 @@
             //L.geoJson(data).addTo(map);
         });
         // Add home, forward & backward button uses Leaflet.NavBar package
-        // https://github.com/davidchouse/Leaflet.NavBar
+        // https://github.com/davidchouse/Leaflet.NavBar 
 
-        // Trying to add layer for African-American Population percent
-        var race = L.layerGroup();
-        var eco = L.layerGroup();
-
-        function onEachFeature1(feature, layer) {
-            // feature.addTo(race);
+        // Add race & eco layer from two files :- race.geojson or eco.geojson
+        function onEachFeature(feature, layer) {
             // does this feature have a property named popupContent?
-            //  if (feature.properties && feature.properties.popupContent) {
-            //      layer.bindPopup(feature.properties.popupContent);
-            //  }
+            //if (feature.properties && feature.properties.popupContent) {
+            //    layer.bindPopup(feature.properties.popupContent);
+            //}
         }
 
-        function onEachFeature2(feature, layer) {
-            //feature.addTo(race);
-        }
 
-        $.getJSON("geojson/racial.geojson", function(data) {
+        $.getJSON("geojson/race.geojson", function(data) {
             L.geoJSON(data, {
-                onEachFeature: onEachFeature1
+                onEachFeature: onEachFeature
             }).addTo(race);
         });
-
-
-        $.getJSON("geojson/race_eco.geojson", function(data) {
+        $.getJSON("geojson/eco.geojson", function(data) {
             L.geoJSON(data, {
-                onEachFeature: onEachFeature2
+                onEachFeature: onEachFeature
             }).addTo(eco);
         });
 
