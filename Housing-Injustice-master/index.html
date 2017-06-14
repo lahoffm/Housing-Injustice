@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Map</title>
+    <!--Import Google Icon Font-->
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.css" media="screen,projection"/>
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--Import jQuery before materialize.js-->
+    <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script> -->
+    <script type="text/javascript" src="js/materialize.js"></script>
+    <!--created stylesheet for juma -->
+    <link type="text/css" rel="stylesheet" href="css/juma_style.css" media="screen,projection"/>
+    <!-- leaflet -->
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <link rel="stylesheet" href="leaflet/Leaflet.NavBar.css" />
+    <script src="leaflet/leaflet.js"></script>
+    <script src="leaflet/Leaflet.NavBar.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!--Creates color changing effect for the background of pages -->
+    <style>
+        html {
+
+            height: 100%;
+            width: 100%;
+            left:0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            position: absolute;
+            background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
+            background-size: 1800% 1800%;
+
+            -webkit-animation: rainbow 18s ease infinite;
+            -z-animation: rainbow 18s ease infinite;
+            -o-animation: rainbow 18s ease infinite;
+            animation: rainbow 18s ease infinite;
+        }
+
+        @-webkit-keyframes rainbow {
+            0%{background-position:0% 82%}
+            50%{background-position:100% 19%}
+            100%{background-position:0% 82%}
+        }
+        @-moz-keyframes rainbow {
+            0%{background-position:0% 82%}
+            50%{background-position:100% 19%}
+            100%{background-position:0% 82%}
+        }
+        @-o-keyframes rainbow {
+            0%{background-position:0% 82%}
+            50%{background-position:100% 19%}
+            100%{background-position:0% 82%}
+        }
+        @keyframes rainbow {
+            0%{background-position:0% 82%}
+            50%{background-position:100% 19%}
+            100%{background-position:0% 82%}
+
+        }
+        #map {
+            /*width: 900px;*/
+            height: 700px;
+            z-index: 1;
+            position:relative;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- header with logo -->
+    <header>
+        <nav>
+            <div class="nav-wrapper white s12">
+                <a href="#" class="brand-logo left-align" style="position:relative"><img class="responsive-img"style="height: 56px" id="logo" src="images/juma.png"/></a>
+                <a href="#" class="brand-logo center"><img class="responsive-img"style="height: 56px" id="logo2" src="images/juma2.png"/></a>
+            </div>
+        </nav>
+    </header>
+
+    <!--page content-->
+    <main>
+        <div class="row">
+            <!-- toggle buttons for various map overlay options -->
+            <div class="col s4" id="toggle_box">
+                <!-- racial data toggle -->
+                <div style="float:left">
+                    <label>Race</label>
+                    <div id="raceLayer" class="switch"><label>Off<input id="ra" type="checkbox" ><span class="lever"></span>On</label></div>
+
+                </div>
+                <!-- price data toggle -->
+                <div class=" col offset-s1" style="float:left">
+                    <label>Harbour</label>
+                    <div id="harbourLayer" class="switch"><label>Off<input type="checkbox" checked><span class="lever"></span>On</label></div>
+                </div>
+
+                <div  style="float:left">
+                    <label>Eco</label>
+                    <div id="ecoLayer" class="switch"><label>Off<input type="checkbox"><span class="lever"></span>On</label></div>
+                </div>
+            </div>
+            <!-- "add" button for adding additional property to database & map -->
+            <!--
+            <div class="col s2 offset-s7" style="position:relative; top:10px; left:50px">
+                <button onClick="location.href='add_property.html';" class="btn btn-floating pulse green lighten-3 left-align" style=" "><i class="material-icons">add</i></button>
+            </div>
+            -->
+        </div>
+
+        <div class="row">
+            <!-- contains property information when property is clicked -->
+            <div class="col s11 m12 l12">
+                <div class="map-overlay">
+                    <h2 id="overlay-header">Click a Harbour property!</h2>
+                    <div id="pd">
+                        <p></p>
+                    </div>
+                    <div id="edit_button">
+
+                    </div>
+                </div>
+
+                <!-- holds the map -->
+                <div class="z-depth-3" id="map" >
+
+                </div>
+            </div>
+        </div>
+        <!-- box is the edit form -->
+        <div class="row">
+            <div class="col s7">
+                <div id="edit_popup">
+
+                </div>
+            </div>
+        </div>
+
+
+        <script>
+            // initialize the map
+            // Atlanta Coordinates 33.74, -84.38
+            var map = L.map('map').setView([33.7490, -84.3880], 13);
+
+            // load a tile layer
+            L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 22,
+                minZoom: 10
+            }).addTo(map);
+
+            // Layer Harbour
+            var harbour = L.layerGroup();
+            var race = L.layerGroup();
+            var eco = L.layerGroup();
+
+            // load GeoJSON from an external file
+            $.getJSON("geojson/harbour.geojson", function(data) {
+                // custom icon
+                var harbourIcon = L.icon({
+                    iconUrl: 'images/h4.png',
+                    iconSize: [25, 30]
+                });
+                L.geoJson(data, {
+                    pointToLayer: function(feature, latlng) {
+                        //return (commented out to stop displayed markers)
+                        return L.marker(latlng, {
+                            icon: harbourIcon
+                        }).addTo(harbour);
+
+                    },
+                    onEachFeature: function onEachFeature(feature,layer){
+                        layer.on('click', function (e) {
+                            //hide the "click a harbour property" sentence
+                            $("#overlay-header").html("");
+                            $("#pd").html("");
+                            $("#edit_button").html("");
+                            //turn current json property into string
+                            var information = JSON.stringify(e.target.feature.properties,undefined,4);
+                            //$('#pd').append("<p style='float: left'>Address: </p>"  + e.target.feature.properties.Address);
+                            //objectify string variable
+                            var result = JSON.parse(information);
+                            //display the key and value for each json pair
+                            $.each(result,function(k,val){
+                                if (k == "ATLANTA.HOMESTEAD.EXEMPTION.CODE"){
+                                    $('#pd').append("Exemption Code: " + val + '<br/>');
+                                }
+                                else if(k == "FULTON.HOMESTEAD.EXEMPTION.CODE"){
+                                    $('#pd').append("Fult Exemption: " + val + '<br/>');
+                                }
+                                else{
+                                    $('#pd').append(k + " : " + val + '<br/>');
+                                }
+
+                                }
+                            );
+                            //add the edit button giving user option to edit
+                            $('#edit_button').append(" <a onClick='edit_box()' class='btn-floating btn-mini blue' style='float:right'> <i class='large material-icons'>mode_edit</i> </a>");
+
+                        });
+                    }
+
+                //on marker click, add or edit harbour information
+                    //addTo(map).on("click",function(event){
+                }).addTo(map);
+
+                // Default Icon
+                //L.geoJson(data).addTo(map);
+            });
+
+            $.getJSON("geojson/race.geojson", function(data) {
+                L.geoJSON(data, {
+                    onEachFeature: onEachFeature
+                }).addTo(race);
+            });
+            $.getJSON("geojson/eco.geojson", function(data) {
+                L.geoJSON(data, {
+                    onEachFeature: onEachFeature
+                }).addTo(eco);
+            });
+
+            var overlays = {
+                "Harbour": harbour,
+                "Race": race,
+                "Economic": eco
+            };
+
+            // Add home, forward & backward button uses Leaflet.NavBar package
+            // https://github.com/davidchouse/Leaflet.NavBar
+            L.control.navbar().addTo(map);
+            //L.control.layers(null, overlays).addTo(map);
+
+            //create edit box popup
+            function edit_box(){
+                $('#edit_popup').append("<div class='center-align'><h5>Edit property information</h5></div>" +
+                    "<form class='login_form z-depth-3' style='background-color: #f1f1f1'><div>" +
+                    "<label><b>ParcelID</b></label><input type='text' placeholder='parcel ID' name='parID' > " +
+                    "<label><b>Address</b></label><input type='text' placeholder='address' name='parAddress' >" +
+                    "<label><b>Owner</b></label><input type='text' placeholder='owner name' name='ownerName' "  +
+                    "<label>Owner Address 1</label><input type='text' placeholder='owner address line1' name='oAddr1' >" +
+                    "<label><b>Owner Address 2</b></label><input type='text' placeholder='owner address line2' name='oAddr2' > " +
+                    "<label><b>Tax Dist</b></label><input type='text' placeholder='tax dist' name='taxDist' >" +
+                    "<label><b>Total Assessment</b></label><input type='text' placeholder='total assessment' name='totAssess' >" +
+                    "<label><b>Land Assessment</b></label><input type='text' placeholder='land assessment' name='landAssess' >" +
+                    "<label><b>Total Appraised</b></label><input type='text' placeholder='total appraised' name='totAppr' >" +
+                    "<label><b>Name</b></label><input type='text' placeholder='name' name='name' >" +
+                    "<label><b>Old Name</b></label><input type='text' placeholder='old name' name='oldName' >" +
+                    "<label><b>Harbour present</b></label><input type='text' placeholder='1 if harbour owns' name='harbPres' >" +
+                    "<label><b>Harbour past</b></label><input type='text' placeholder='0 if harbour does not own' name='harbPast' >" +
+                    "<label><b>Lien present</b></label><input type='text' placeholder='lien status' name='lienPres' ></div>" +
+                    "<button onSubmit='hide_editBox()' class='login_btn' type='submit'>Submit</button></form>");
+            }
+            //hide box after submission
+            function hide_editBox(){
+                $("#edit_popup").hide();
+            }
+            //turn harbour properties on and off
+            $('#harbourLayer').click(function(event){
+                event.preventDefault();
+                if (map.hasLayer(harbour)){
+
+                    map.removeLayer(harbour);
+                }else{
+                    map.addLayer(harbour);
+
+                    //this.setAttribute("checked", "checked");
+                    //this.checked = true;
+                }
+
+                }
+            );
+
+
+        </script>
+    </main>
+
+    <!-- footer with logo -->
+    <footer class="page-footer white">
+
+        <div class="footer-copyright">
+            <div class="container center-align ">
+                <p style="color: black ">&#9400; DSSG 2017</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
