@@ -27,6 +27,7 @@
 
         // load a tile layer
         L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
             maxZoom: 22,
             minZoom: 8
         }).addTo(map);
@@ -53,6 +54,8 @@
         // }).addTo(map);
         // Layer Harbour
         var harbour = L.layerGroup();
+        var race = L.layerGroup();
+        var eco = L.layerGroup();
         // load GeoJSON from an external file
         $.getJSON("geojson/harbour.geojson", function(data) {
             // custom icon 
@@ -73,6 +76,26 @@
             //L.geoJson(data).addTo(map);
         });
         // Add home, forward & backward button uses Leaflet.NavBar package
+        // https://github.com/davidchouse/Leaflet.NavBar 
+
+        // Add race & eco layer from two files :- race.geojson or eco.geojson
+        function onEachFeature(feature, layer) {
+            // does this feature have a property named popupContent?
+            //if (feature.properties && feature.properties.popupContent) {
+            //    layer.bindPopup(feature.properties.popupContent);
+            //}
+        }
+
+
+        $.getJSON("geojson/race.geojson", function(data) {
+            L.geoJSON(data, {
+                onEachFeature: onEachFeature
+            }).addTo(race);
+        });
+        $.getJSON("geojson/eco.geojson", function(data) {
+            L.geoJSON(data, {
+                onEachFeature: onEachFeature
+            }).addTo(eco);
         // https://github.com/davidchouse/Leaflet.NavBar
 
         // Trying to add layer for African-American Population percent
@@ -188,6 +211,7 @@
                 onEachFeature: ecoOnEachFeature
             });
             ecoFeature.addTo(eco);
+
         });
 
         L.control.navbar().addTo(map);
