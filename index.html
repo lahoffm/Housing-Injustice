@@ -4,6 +4,7 @@
     <title>Housing Injustice Vis</title>
     <link rel="stylesheet" href="leaflet/leaflet.css" />
     <link rel="stylesheet" href="leaflet/Leaflet.NavBar.css" />
+    <link rel="stylesheet" href="css/main.css" />
     <script src="leaflet/leaflet.js"></script>
     <script src="leaflet/Leaflet.NavBar.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -22,12 +23,13 @@
     <script>
         // initialize the map
         // Atlanta Coordinates 33.74, -84.38
-        var map = L.map('map').setView([33.7490, -84.3880], 13);
+        var map = L.map('map').setView([33.7490, -84.3880], 10);
 
         // load a tile layer
         L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 20,
-            minZoom: 10
+
+            maxZoom: 22,
+            minZoom: 8
         }).addTo(map);
 
         // new L.Control.GeoSearch({
@@ -94,6 +96,122 @@
             L.geoJSON(data, {
                 onEachFeature: onEachFeature
             }).addTo(eco);
+        // https://github.com/davidchouse/Leaflet.NavBar
+
+        // Trying to add layer for African-American Population percent
+        var race = L.layerGroup();
+        var eco = L.layerGroup();
+        var raceFeature, ecoFeature;
+
+        // Choose color for Race
+        function getColorRace(d) {
+            return d >= 65.9 ? '#993404' :
+                d >= 45.9 ? '#d95f0e' :
+                d >= 28.1 ? '#fe9929' :
+                d >= 14.3 ? '#fed98e' :
+                '#ffffd4';
+        }
+
+        // Setting color for race attribute of map
+        function raceColor(feature) {
+            return {
+                fillColor: getColorRace(feature.properties.aaPercent),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        }
+
+
+        // Choose color for Economic data
+        function getColorEco(d) {
+            return d >= 106516 ? '#eff3ff' :
+                d >= 79578 ? '#bdd7e7' :
+                d >= 59904 ? '#6baed6' :
+                d >= 42204 ? '#3182bd' :
+                '#08519c';
+        }
+
+        // Setting color for economic attribute of map
+        function ecoColor(feature) {
+            return {
+                fillColor: getColorEco(feature.properties.medIncome),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        }
+
+        // Highlight every zipcode
+        function highlightFeature(e) {
+            var layer = e.target;
+
+            layer.setStyle({
+                weight: 5,
+                color: '#666',
+                dashArray: '',
+                fillOpacity: 0.7
+            });
+
+            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                layer.bringToFront();
+            }
+        }
+
+        // On Mouseout reset to original for race file 
+        function raceResetHighlight(e) {
+            raceFeature.resetStyle(e.target);
+        }
+
+        // On Mouseout reset to original for eco file
+        function ecoResetHighlight(e) {
+            ecoFeature.resetStyle(e.target);
+        }
+
+        // listener that zooms to the zipcode
+        function zoomToFeature(e) {
+            map.fitBounds(e.target.getBounds());
+        }
+
+        // Trigger to call functions on different events for Race
+        function raceOnEachFeature(feature, layer) {
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: raceResetHighlight,
+                click: zoomToFeature
+            });
+        }
+
+        // Trigger to call functions on different events for Economics
+        function ecoOnEachFeature(feature, layer) {
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: ecoResetHighlight,
+                click: zoomToFeature
+            });
+        }
+
+        // Loading racial geojson file
+        $.getJSON("geojson/racial.geojson", function(data) {
+            raceFeature = L.geoJSON(data, {
+                style: raceColor,
+                onEachFeature: raceOnEachFeature
+            });
+            raceFeature.addTo(race);
+        });
+
+        // Loading economic geojson file
+        $.getJSON("geojson/race_eco.geojson", function(data) {
+            ecoFeature = L.geoJSON(data, {
+                style: ecoColor,
+                onEachFeature: ecoOnEachFeature
+            });
+            ecoFeature.addTo(eco);
+
         });
 
         L.control.navbar().addTo(map);
@@ -103,6 +221,31 @@
             "Economic": eco
         };
 
+
+        // Add legend for Race
+        var legend = L.control({
+            position: 'bottomright'
+        });
+
+        legend.onAdd = function(map) {
+
+            var div = L.DomUtil.create('div', 'info legend'),
+                grades = [0, 14.3, 28.1, 45.9, 65.9, 100],
+                labels = [];
+
+            // loop through our race percent intervals and generate a label with a colored square for each interval
+            for (var i = 0; i < grades.length - 1; i++) {
+                div.innerHTML +=
+                    '<i style="background:' + getColorRace(grades[i] + 1) + '"></i> ' +
+                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+            }
+
+            return div;
+        };
+
+        legend.addTo(map);
+
+        // Finally, Adding all overlays to map
         L.control.layers(null, overlays).addTo(map);
     </script>
 </body>
