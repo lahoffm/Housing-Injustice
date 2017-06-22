@@ -20,6 +20,8 @@
     <script src="leaflet/leaflet.js"></script>
     <script src="leaflet/Leaflet.NavBar.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="leaflet/leaflet-search.js"></script>
+    <link href="searchbox.css" rel="stylesheet" />
 
     <!--Creates color changing effect for the background of pages -->
     <style>
@@ -350,7 +352,6 @@
 
             // Add home, forward & backward button uses Leaflet.NavBar package
             // https://github.com/davidchouse/Leaflet.NavBar
-            L.control.navbar().addTo(map);
             //L.control.layers(null, overlays).addTo(map);
             // Add legend for Race
             var legend = L.control({
@@ -446,6 +447,55 @@
 
                 }
             );
+		var searchboxControl=createSearchboxControl();
+        var control = new searchboxControl({});
+		control._searchfunctionCallBack = function (searchkeywords)
+        {
+			for(i=0; i<searchkeywords.length; i++){
+				if(searchkeywords.charAt(i)=='\'' || searchkeywords.charAt(i)=='\"'){
+					alert("Please re-enter the address without apostrophes and/or quotes");
+					return;
+				}
+			}
+            if (!searchkeywords) {
+                alert("Please enter an address to search!");
+            }
+			else{
+				var resq=new Array();
+				$.ajax({
+                    type: "POST",
+                    url: 'mapDoc.php',
+                    data: { s : searchkeywords },
+					async: false,
+                    success: function(data)
+                    {
+							try
+								{
+									resq = JSON.parse(data);
+								}
+							catch(e)
+								{
+									alert(data);
+								}
+                    }
+                });
+				if(resq.length!=0){
+					var x=resq[0]['X'];
+					var y=resq[0]['Y'];
+					var harbourIcon = L.icon({
+						iconUrl: 'images/h1.png',
+						iconSize: [25, 30]
+					});
+					L.marker([y,x], {
+                        icon: harbourIcon
+                    }).addTo(map);
+					map.setView([y,x],18);
+				}
+			}
+        }
+		map.addControl(control);
+		map.zoomControl.setPosition('topleft');
+		L.control.navbar().addTo(map);
 
         </script>
     </main>
