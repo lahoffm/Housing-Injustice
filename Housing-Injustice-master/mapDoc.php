@@ -1,6 +1,6 @@
 
 <?php
-	include 'dbcon.php';
+	//include 'dbcon.php';
 	ini_set('memory_limit', '256M');
 	$search=(isset($_POST['s']) ? $_POST['s'] : 'hi');
 	/*or die(mysqli_error($con))
