@@ -60,6 +60,6 @@
 	$error="$search: The address you typed was not found. Please try again!";
 	echo $error;
 	$_POST['s']="";
-	mysqli_close($con);
+	//mysqli_close($con);
 	
 ?>
