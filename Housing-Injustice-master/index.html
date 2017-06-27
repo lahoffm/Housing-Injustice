@@ -495,14 +495,7 @@
             }
 			else{
 				var resq=new Array();
-				$.ajax({
-                    type: "GET",
-                    url: 'mapDoc.php?',
-                    data:'s='+searchkeywords,
-					async: false,
-                    success: function(data)
-                    {
-			    alert("in");
+				$.get('mapDoc.php', {s : searchkeywords}, function(data){
 							try
 								{
 									resq = JSON.parse(data);
@@ -511,11 +504,7 @@
 								{
 									alert(data);
 								}
-		    },
-		    error: function(){
-			alert("out");    
-		    }
-                });
+				});
 				if(resq.length!=0){
 					var x=resq[0]['X'];
 					var y=resq[0]['Y'];
