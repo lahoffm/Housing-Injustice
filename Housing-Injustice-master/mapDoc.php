@@ -3,8 +3,8 @@
 	include 'dbcon.php';
 	ini_set('memory_limit', '256M');
 	$search=(isset($_POST['s']) ? $_POST['s'] : 'hi');
-	
-	$db=mysqli_query($con, "SELECT * FROM `fulton_parcels_v1` Where Address='$search' ") or die(mysqli_error($con));
+	/*or die(mysqli_error($con))
+	$db=mysqli_query($con, "SELECT * FROM `fulton_parcels_v1` Where Address='$search' ");
 	if($db->num_rows){
 		$results = array();
 		$i=0;
@@ -56,7 +56,9 @@
 	else{
 		$error="$search: The address you typed was not found. Please try again!";
 		echo $error;
-	}
+	}*/
+	$error="$search: The address you typed was not found. Please try again!";
+	echo $error;
 	$_POST['s']="";
 	mysqli_close($con);
 	
