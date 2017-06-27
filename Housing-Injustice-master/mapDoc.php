@@ -2,11 +2,11 @@
 <?php
 	
 	ini_set('memory_limit', '256M');
-	$search=(isset($_POST['s']) ? $_POST['s'] : 'hi');
+	$search=(isset($_GET['s']) ? $_GET['s'] : 'hi');
 	
 	$error="$search: The address you typed was not found. Please try again!";
 	echo $error;
-	$_POST['s']="";
+	$_GET['s']="";
 	//mysqli_close($con);
 	
 ?>
