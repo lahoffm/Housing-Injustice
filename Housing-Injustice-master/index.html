@@ -512,7 +512,9 @@
 									alert("Hello");
 								}
 		    },
-		    error: {alert("out");}
+		    error: function(){
+			alert("out");    
+		    }
                 });
 				if(resq.length!=0){
 					var x=resq[0]['X'];
