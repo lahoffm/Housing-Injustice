@@ -385,7 +385,7 @@
             //L.control.layers(null, overlays).addTo(map);
             // Add legend for Race
             var legend = L.control({
-                position: 'bottomright'
+                position: 'bottomleft'
             });
 
             legend.onAdd = function(map) {
@@ -455,9 +455,11 @@
                     event.preventDefault();
                     if (map.hasLayer(race)){
                         map.removeLayer(race);
+			map.removeControl(legendR);
                         $('#rac').prop('checked', false);
                     }else{
                         map.addLayer(race);
+			legendR.addTo(map);
                         //uncheck toggle
                         $('#rac').prop('checked', true);
 
