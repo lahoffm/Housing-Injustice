@@ -384,27 +384,25 @@
             // https://github.com/davidchouse/Leaflet.NavBar
             //L.control.layers(null, overlays).addTo(map);
             // Add legend for Race
-            var legend = L.control({
+                var legendR = L.control({
                 position: 'bottomleft'
             });
 
-            legend.onAdd = function(map) {
+            legendR.onAdd = function(map) {
 
                 var div = L.DomUtil.create('div', 'info legend'),
                     grades = [0, 14.3, 28.1, 45.9, 65.9, 100],
                     labels = [];
-
+				div.innerHTML+='<label style="background:white; font-size:15px; color:black">% African American</label><br/>';
                 // loop through our race percent intervals and generate a label with a colored square for each interval
                 for (var i = 0; i < grades.length - 1; i++) {
                     div.innerHTML +=
-                        '<i style="background:' + getColorRace(grades[i] + 1) + '"></i> ' +
-                        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+                         '<i style="background:' + getColorRace(grades[i] + 1) + '"> ' +
+                        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '</i><br/>' : '+');
                 }
 
                 return div;
             };
-
-            legend.addTo(map);
 
 
 
