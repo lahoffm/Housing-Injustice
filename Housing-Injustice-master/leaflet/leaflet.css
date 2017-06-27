@@ -141,6 +141,11 @@
 .leaflet-bottom .leaflet-control {
 	margin-bottom: 10px;
 	}
+.info.legend.leaflet-control {
+	background:black;
+    height: 120px;
+    padding: 5px;
+}
 .leaflet-left .leaflet-control {
 	margin-left: 10px;
 	}
