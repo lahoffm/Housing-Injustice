@@ -497,8 +497,8 @@
 				var resq=new Array();
 				$.ajax({
                     type: "GET",
-                    url: 'mapDoc.php',
-                    data: { s : searchkeywords },
+                    url: 'mapDoc.php?',
+                    data:'s='+searchkeywords,
 					async: false,
                     success: function(data)
                     {
