@@ -12,45 +12,16 @@
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
         <script type="text/javascript" src="js/materialize.js"></script>
         <link type="text/css" rel="stylesheet" href="css/juma_style.css" media="screen,projection"/>
-        <!--Creates color changing effect for the background of pages -->
+
         <style>
             html {
 
-                height: 100%;
-                width: 100%;
-                left:0;
-                right: 0;
-                top: 0;
-                bottom: 0;
-                position: absolute;
-                background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
-                background-size: 1800% 1800%;
-
-                -webkit-animation: rainbow 18s ease infinite;
-                -z-animation: rainbow 18s ease infinite;
-                -o-animation: rainbow 18s ease infinite;
-                animation: rainbow 18s ease infinite;}
-
-            @-webkit-keyframes rainbow {
-                0%{background-position:0% 82%}
-                50%{background-position:100% 19%}
-                100%{background-position:0% 82%}
+                background: #563f46;
             }
-            @-moz-keyframes rainbow {
-                0%{background-position:0% 82%}
-                50%{background-position:100% 19%}
-                100%{background-position:0% 82%}
-            }
-            @-o-keyframes rainbow {
-                0%{background-position:0% 82%}
-                50%{background-position:100% 19%}
-                100%{background-position:0% 82%}
-            }
-            @keyframes rainbow {
-                0%{background-position:0% 82%}
-                50%{background-position:100% 19%}
-                100%{background-position:0% 82%}
-
+            img {
+                image-rendering: auto;
+                image-rendering: crisp-edges;
+                image-rendering: pixelated;
             }
         </style>
     </head>
@@ -58,28 +29,48 @@
     <body class="bottom">
             <!-- header with logo -->
             <header>
-                <nav>
-                    <div class="nav-wrapper white s12">
-                        <a href="#" class="brand-logo left-align" style="position:relative"><img class="responsive-img"style="height: 56px" id="logo" src="images/juma.png"/></a>
-                        <a href="#" class="brand-logo center"><img class="responsive-img"style="height: 56px" id="logo2" src="images/juma2.png"/></a>
+                <div class="navbar-fixed">
+                    <nav>
+                        <div class="nav-wrapper white">
+                            <a href="#" class="brand-logo black-text">Juma</a>
+                            <ul id="nav-mobile" class="right hide-on-med-and-down ">
 
-
-                    </div>
-                </nav>
+                                <li ><a class="black-text" href="#">Info</a></li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
             </header>
 
-            <!--page content-->
+            <div class="parallax-container">
+                <div class="parallax">
+                    <img src="http://wallpaperstock.net/atlanta-foggy-sunrise_wallpapers_36097_1920x1080.jpg">
+                </div>
+            </div>
+                <div class="section white">
+                    <div class="row container">
+                        <h2 class="header">About Juma</h2>
+                        <p class="grey-text text-darken-3 lighten-3">Juma represents a "Justice Map" designed to highlight key
+                            neighborhoods, properties, and statistics associated with housing properties in Atlanta, GA. It was created by the Housing
+                            Justice Data Science for Social Good 2017 team for the use of Atlanta Legal Aid. </p>
+                    </div>
+                </div>
+                <div class="parallax-container">
+                    <div class="parallax"><img src="http://www.wallpapers4u.org/wp-content/uploads/usa_atlanta_road_traffic_night_building_48194_1920x1080.jpg"></div>
+                </div>
+
+             <!--page content-->
             <main class="bott_main">
                 <div id="login_box" class="row" style="padding:20px">
                     <div class="col s6 offset-s3">
                         <!-- login form  -->
-                        <div class="z-depth-3" style="background-color: #f1f1f1">
+                        <div class="z-depth-3" style="background-color: #563f46">
                             <form class="login_form" >
                                 <div>
-                                    <label><b>Username</b></label>
+                                    <label style="color:white;"><b>Username</b></label>
                                     <input type="text" placeholder="Enter Username" name="uname" required>
 
-                                    <label><b>Password</b></label>
+                                    <label style="color:white;"><b>Password</b></label>
                                     <input type="password" placeholder="Enter Password" name="psw" required>
 
                                     <button class="login_btn" type="submit">Login</button>
@@ -88,7 +79,7 @@
                                 </div>
                                 <!-- forgot password functionality-->
                                 <div style="background-color:#f1f1f1">
-                                    <span class="psw">Forgot <a href="#">password?</a></span>
+                                    <span class="psw"><a href="#">Forgot password?</a></span>
                                 </div>
                             </form>
                         </div>
@@ -106,6 +97,18 @@
                 </div>
             </footer>
 
+    <!-- -->
+    <script>
+        //initialize parallax image scroll
+        $(document).ready(function(){
+            (function($){
+                $(function(){
+                    $('.parallax').parallax();
+                });
+            })(jQuery);
+        });
+
+    </script>
 
     </body>
 
