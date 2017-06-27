@@ -5,6 +5,15 @@
     <title>Map</title>
     <!--Import Google Icon Font-->
     <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- leaflet -->
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <link rel="stylesheet" href="leaflet/Leaflet.NavBar.css" />
+    <script src="leaflet/leaflet.js"></script>
+    <script src="leaflet/Leaflet.NavBar.js"></script>
+
+    <script src="leaflet/leaflet-search.js"></script>
     <!--Import materialize.css-->
     <link type="text/css" rel="stylesheet" href="css/materialize.css" media="screen,projection"/>
     <!--Let browser know website is optimized for mobile-->
@@ -14,115 +23,95 @@
     <script type="text/javascript" src="js/materialize.js"></script>
     <!--created stylesheet for juma -->
     <link type="text/css" rel="stylesheet" href="css/juma_style.css" media="screen,projection"/>
-    <!-- leaflet -->
-    <link rel="stylesheet" href="leaflet/leaflet.css" />
-    <link rel="stylesheet" href="leaflet/Leaflet.NavBar.css" />
-    <script src="leaflet/leaflet.js"></script>
-    <script src="leaflet/Leaflet.NavBar.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-	<script src="leaflet/leaflet-search.js"></script>
+
     <link href="searchbox.css" rel="stylesheet" />
 
     <!--Creates color changing effect for the background of pages -->
     <style>
         html {
-
-            height: 100%;
-            width: 100%;
-            left:0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            position: absolute;
-            background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
-            background-size: 1800% 1800%;
-
-            -webkit-animation: rainbow 18s ease infinite;
-            -z-animation: rainbow 18s ease infinite;
-            -o-animation: rainbow 18s ease infinite;
-            animation: rainbow 18s ease infinite;
+            background:#880e4f;
+            /*  blues: #3FC884, 3FC7C8, 3F83C8, 3F3FC8, 843FC8, C83FC8 */
+            /* orange & greens: #BC9916, 8CBC16, 39BC16, 16BC46, 16BC99, 168CBC */
         }
 
-        @-webkit-keyframes rainbow {
-            0%{background-position:0% 82%}
-            50%{background-position:100% 19%}
-            100%{background-position:0% 82%}
-        }
-        @-moz-keyframes rainbow {
-            0%{background-position:0% 82%}
-            50%{background-position:100% 19%}
-            100%{background-position:0% 82%}
-        }
-        @-o-keyframes rainbow {
-            0%{background-position:0% 82%}
-            50%{background-position:100% 19%}
-            100%{background-position:0% 82%}
-        }
-        @keyframes rainbow {
-            0%{background-position:0% 82%}
-            50%{background-position:100% 19%}
-            100%{background-position:0% 82%}
-
-        }
         #map {
-            /*width: 900px;*/
+            width: 1400px;
             height: 700px;
             z-index: 1;
             position:relative;
         }
 
+
     </style>
 </head>
-<body>
+<body >
     <!-- header with logo -->
     <header>
-        <nav>
-            <div class="nav-wrapper white s12">
-                <a href="#" class="brand-logo left-align" style="position:relative"><img class="responsive-img"style="height: 56px" id="logo" src="images/juma.png"/></a>
-                <a href="#" class="brand-logo center"><img class="responsive-img"style="height: 56px" id="logo2" src="images/juma2.png"/></a>
-            </div>
-        </nav>
-    </header>
+        <div class="navbar-fixed">
+            <nav>
+                <div class="nav-wrapper white">
+                    <a href="#" class="brand-logo black-text">Juma</a>
+                    <ul id="nav-mobile" class="right hide-on-med-and-down ">
+                        <li><a style=" color: white;font-size:15px;" class='dropdown-button black-text' href='#' data-activates='dropdown1'>Layers</a>
+                            <!-- Dropdown Structure -->
+                            <ul id='dropdown1' class='dropdown-content '>
 
-    <!--page content-->
-    <main>
-        <div class="row">
-            <!-- toggle buttons for various map overlay options -->
-            <div class="col s4" id="toggle_box">
-                <!-- racial data toggle -->
-                <div style="float:left">
-                    <label>Race</label>
-                    <div id="raceLayer" class="switch"><label>Off<input id="ra" type="checkbox" ><span class="lever"></span>On</label></div>
-
+                                <li><a id="raceLayer" href="#!">Racial Density</a></li>
+                                <li><a id="ecoLayer" href="#!">Income</a></li>
+                                <li class="divider"></li>
+                                <!--
+                                <li><a href="#!"><i class="material-icons">view_module</i>four</a></li>
+                                <li><a href="#!"><i class="material-icons">layers</i>five</a></li>
+                                -->
+                            </ul>
+                        </li>
+                        <li ><a class="dropdown-button black-text" href="#" data-activates='dropdown2'>Harbour</a>
+                            <ul id='dropdown2' class='dropdown-content '>
+                                <li><a id="harbourLayer" href="#!">View Harbour</a></li>
+                                <li class="divider"></li>
+                            </ul>
+                        </li>
+                        <li ><a class="black-text" href="#">Info</a></li>
+                    </ul>
                 </div>
-                <!-- price data toggle -->
-                <div class=" col offset-s1" style="float:left">
-                    <label>Harbour</label>
-                    <div id="harbourLayer" class="switch"><label>Off<input type="checkbox" checked><span class="lever"></span>On</label></div>
-                </div>
-
-                <div  style="float:left">
-                    <label>Eco</label>
-                    <div id="ecoLayer" class="switch"><label>Off<input type="checkbox"><span class="lever"></span>On</label></div>
-                </div>
-            </div>
-
-            <div class="col s2 ">
-                <div id="timelineButton">
-
-                </div>
-            </div>
-            <!-- "add" button for adding additional property to database & map -->
-            <!--
-            <div class="col s2 offset-s7" style="position:relative; top:10px; left:50px">
-                <button onClick="location.href='add_property.html';" class="btn btn-floating pulse green lighten-3 left-align" style=" "><i class="material-icons">add</i></button>
-            </div>
-            -->
+            </nav>
         </div>
 
+
+    </header>
+    <br>
+    <!--page content-->
+    <main>
+        <!-- Modal Structure -->
+        <div id="modal1" class="modal">
+            <div class="modal-content">
+
+                <div class='center-align'><h5>Edit property information</h5></div>
+                <form class='login_form z-depth-3' style='background-color: #f1f1f1'><div>
+                <label><b>ParcelID</b></label><input type='text' placeholder='parcel ID' name='parID' >
+                <label><b>Address</b></label><input type='text' placeholder='address' name='parAddress' >
+                <label><b>Owner</b></label><input type='text' placeholder='owner name' name='ownerName' >
+                <label>Owner Address 1</label><input type='text' placeholder='owner address line1' name='oAddr1' >
+                <label><b>Owner Address 2</b></label><input type='text' placeholder='owner address line2' name='oAddr2' >
+                <label><b>Tax Dist</b></label><input type='text' placeholder='tax dist' name='taxDist' >
+                <label><b>Total Assessment</b></label><input type='text' placeholder='total assessment' name='totAssess' >
+                <label><b>Land Assessment</b></label><input type='text' placeholder='land assessment' name='landAssess' >
+                <label><b>Total Appraised</b></label><input type='text' placeholder='total appraised' name='totAppr' >
+                <label><b>Name</b></label><input type='text' placeholder='name' name='name' >
+                <label><b>Old Name</b></label><input type='text' placeholder='old name' name='oldName' >
+                <label><b>Harbour present</b></label><input type='text' placeholder='1 if harbour owns' name='harbPres' >
+                <label><b>Harbour past</b></label><input type='text' placeholder='0 if harbour does not own' name='harbPast' >
+                <label><b>Lien present</b></label><input type='text' placeholder='lien status' name='lienPres' ></div> </form>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Save</a>
+            </div>
+        </div>
+
+        <!-- map region -->
         <div class="row">
             <!-- contains property information when property is clicked -->
-            <div class="col s11 m12 l12">
+            <div class="col s12 m12 l12">
                 <div class="map-overlay">
                     <h2 id="overlay-header">Click a Harbour property!</h2>
                     <div id="pd">
@@ -148,8 +137,32 @@
             </div>
         </div>
 
+        <!-- atlanta image -->
+        <div class="parallax-container">
+            <div class="parallax">
+                <img src="http://wallpaperstock.net/atlanta-foggy-sunrise_wallpapers_36097_1920x1080.jpg">
+            </div>
+        </div>
 
         <script>
+            //initialize parallax image scroll
+            $(document).ready(function(){
+                (function($){
+                    $(function(){
+                        $('.parallax').parallax();
+                    });
+                })(jQuery);
+            });
+
+            $(document).ready(function(){
+                // the "href" attribute of the modal trigger must specify the modal ID that wants to be triggered
+                $('.modal').modal();
+            });
+        </script>
+
+        <script>
+
+
             // initialize the map
             // Atlanta Coordinates 33.74, -84.38
             var map = L.map('map').setView([33.7490, -84.3880], 13);
@@ -157,8 +170,20 @@
             // load a tile layer
             L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 22,
-                minZoom: 10
+                minZoom: 10,
+
             }).addTo(map);
+            map.once('focus',function(){
+                map.scrollWheelZoom.disable();
+            });
+            map.on('click',function(){
+                if (map.scrollWheelZoom.enabled()) {
+                    map.scrollWheelZoom.disable();
+                }
+                else {
+                    map.scrollWheelZoom.enable();
+                }
+            });
 
             // Layer Harbour
             var harbour = L.layerGroup();
@@ -318,10 +343,15 @@
                                 }
                             );
                             //add the edit button giving user option to edit
-                            $('#edit_button').append(" <a onClick='edit_box()' class='btn-floating btn-mini blue' style='float:right'> <i class='large material-icons'>mode_edit</i> </a>");
+                            $('#edit_button').append(" <a class='btn-floating btn-mini blue' style='float:right' href='#modal1'> <i class='large material-icons'>mode_edit</i> </a>");
                             //add the timeline button for timeline view
+                            /*$('#edit_button').append(" <div class='fixed-action-btn horizontal'> " +
+                                "<a class='btn-floating btn-mini blue'  href='#modal1'> <i class='mini material-icons'>mode_edit</i> </a>  " +
+                                "<ul>  " +
+                                "<li><a class='btn-floating yellow darken-1'><i class='material-icons'>note</i></a></li> " +
+                                "</ul> </div>");
                             $('#timelineButton').append("<button class='timelinebtn' type='submit'>Timeline View</button>");
-
+                            */
                         });
                     }
 
@@ -404,16 +434,19 @@
             }
             //turn harbour properties on and off
             $('#harbourLayer').click(function(event){
-                event.preventDefault();
-                if (map.hasLayer(harbour)){
+                    event.preventDefault();
+                    //remove layer if on screen
+                    if (map.hasLayer(harbour)){
+                        map.removeLayer(harbour);
+                        //check toggle
+                        $('#harb').prop('checked', false);
+                        //add layer if not on screen
+                    }else{
+                        map.addLayer(harbour);
+                        //uncheck toggle
+                        $('#harb').prop('checked', true);
 
-                    map.removeLayer(harbour);
-                }else{
-                    map.addLayer(harbour);
-
-                    //this.setAttribute("checked", "checked");
-                    //this.checked = true;
-                }
+                    }
 
                 }
             );
@@ -421,13 +454,13 @@
             $('#raceLayer').click(function(event){
                     event.preventDefault();
                     if (map.hasLayer(race)){
-
                         map.removeLayer(race);
+                        $('#rac').prop('checked', false);
                     }else{
                         map.addLayer(race);
+                        //uncheck toggle
+                        $('#rac').prop('checked', true);
 
-                        //this.setAttribute("checked", "checked");
-                        //this.checked = true;
                     }
 
                 }
@@ -436,17 +469,17 @@
             $('#ecoLayer').click(function(event){
                     event.preventDefault();
                     if (map.hasLayer(eco)){
-
                         map.removeLayer(eco);
+                        $('#eco').prop('checked', false);
                     }else{
                         map.addLayer(eco);
-
-                        //this.setAttribute("checked", "checked");
-                        //this.checked = true;
+                        //uncheck toggle
+                        $('#eco').prop('checked', true);
                     }
 
                 }
             );
+
 		var searchboxControl=createSearchboxControl();
         var control = new searchboxControl({});
 		control._searchfunctionCallBack = function (searchkeywords)
@@ -492,7 +525,7 @@
 					map.setView([y,x],18);
 				}
 			}
-        }
+        };
 		map.addControl(control);
 		map.zoomControl.setPosition('topleft');
 		L.control.navbar().addTo(map);
