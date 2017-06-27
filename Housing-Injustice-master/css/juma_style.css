@@ -1,8 +1,10 @@
 /* Bordered form */
 form.login_form {
-    border: 3px solid #f1f1f1;
+    border: 3px solid #c51162;
     padding: 12px 20px;
+
 }
+
 
 /* Full-width inputs */
 input[type=text], input[type=password] {
@@ -10,14 +12,14 @@ input[type=text], input[type=password] {
     padding: 12px 20px;
     margin: 8px 0;
     display: inline-block;
-    border: 1px solid green;
+    border: 1px solid #ffd54f;
     box-sizing: border-box;
     background-color: white;
 }
 
 /* Set a style for all buttons */
 button.login_btn {
-    background-color: #4CAF50;
+    background-color: #ffd54f;
     color: white;
     padding: 14px 20px;
     margin: 8px 0;
@@ -65,7 +67,7 @@ main.bott_main {
 /*display box for property information */
 .map-overlay{
     position: absolute;
-    top: 150px;
+    top: 210px;
     /*bottom: 450px;*/
     right: 9px;
     width: 200px;
@@ -78,20 +80,52 @@ main.bott_main {
     z-index:2 !important;
 
 }
-/*toggle box*/
-#toggle_box{
+.timelinebtn{
     background: #fff;
     position: relative;
     z-index: 1;
-    top: 10px;
+    top: 4px;
     left: 10px;
     border-radius: 3px;
-    width: 450px;
-    height: 60px;
+    width: 150px;
+    height: 50px;
     border: 1px solid rgba(0,0,0,0.4);
     font-family: 'Open Sans', sans-serif;
     opacity: 0.8;
 }
+.overlays{
+    background: #fff;
+    position: relative;
+    z-index: 1;
+    top: 4px;
+    left: 10px;
+    border-radius: 3px;
+    width: 150px;
+    height: 50px;
+    border: 1px solid rgba(0,0,0,0.4);
+    font-family: 'Open Sans', sans-serif;
+    opacity: 0.8;
+}
+/*toggle box*/
+#toggle_box{
+    background: none;
+    position: relative;
+    z-index: 1;
+    top: 15px;
+    left: 200px;
+    border-radius: 3px;
+    width: 200px;
+    height: 50px;
+    border:none;
+    font-family: 'Open Sans', sans-serif;
+
+
+}
+.parallax-container{
+    height: 500px;
+
+}
+
 /*Login box position*/
 #login_box{
     position: fixed;
@@ -100,5 +134,5 @@ main.bott_main {
     margin-top: -25px;
     margin-left: -50px;
 
-}​
+}
 
