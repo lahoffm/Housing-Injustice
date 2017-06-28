@@ -52,13 +52,14 @@
                 <div class="nav-wrapper white">
                     <a href="#" class="brand-logo black-text">Juma</a>
                     <ul id="nav-mobile" class="right hide-on-med-and-down ">
-                        <li><a style=" color: white;font-size:15px;" class='dropdown-button black-text' href='#' data-activates='dropdown1'>Layers</a>
+                        <li><a style=" color: white;font-size:15px; width: 130px" class='dropdown-button black-text' href='#' data-activates='dropdown1'>Layers</a>
                             <!-- Dropdown Structure -->
                             <ul id='dropdown1' class='dropdown-content '>
 
                                 <li><a id="raceLayer" href="#!">Racial Density</a></li>
                                 <li><a id="ecoLayer" href="#!">Income</a></li>
                                 <li class="divider"></li>
+				<li ><a id="neighborhoods" href="#!">Neighborhoods</a></li>
                                 <!--
                                 <li><a href="#!"><i class="material-icons">view_module</i>four</a></li>
                                 <li><a href="#!"><i class="material-icons">layers</i>five</a></li>
@@ -164,37 +165,38 @@
 
 
             // initialize the map
-            // Atlanta Coordinates 33.74, -84.38
-            var map = L.map('map').setView([33.7490, -84.3880], 13);
-	    var clickedIcon = L.Icon.extend({
-            options:{iconUrl: "images/h2.png",
-            iconSize: [30,35] }
+        // Atlanta Coordinates 33.74, -84.38
+        var map = L.map('map').setView([33.7490, -84.3880], 13);
+        // load a tile layer
+        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 22,
+            minZoom: 10,
+
+        }).addTo(map);
+        map.once('focus',function(){
+            map.scrollWheelZoom.disable();
         });
-            var highlight = null;
-            // load a tile layer
-            L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 22,
-                minZoom: 10,
-
-            }).addTo(map);
-            map.once('focus',function(){
+        map.on('click',function(){
+            if (map.scrollWheelZoom.enabled()) {
                 map.scrollWheelZoom.disable();
-            });
-            map.on('click',function(){
-                if (map.scrollWheelZoom.enabled()) {
-                    map.scrollWheelZoom.disable();
-                }
-                else {
-                    map.scrollWheelZoom.enable();
-                }
-            });
+            }
+            else {
+                map.scrollWheelZoom.enable();
+            }
+        });
 
-            // Layer Harbour
-            var harbour = L.layerGroup();
-            var race = L.layerGroup();
-            var eco = L.layerGroup();
-            var raceFeature, ecoFeature;
-
+        var clickedIcon = L.Icon.extend({
+            options:{iconUrl: "images/h2.png",
+                iconSize: [30,35] }
+        });
+        var highlight = null;
+        // Layer Harbour
+        var harbour = L.layerGroup();
+        var race = L.layerGroup();
+        var eco = L.layerGroup();
+        var neighborhoods = L.layerGroup();
+        var raceFeature, ecoFeature, neighborhoodFeature;
+		
               // Choose color for Race
         function getColorRace(d) {
             return d >= 65.9 ? '#e83b5d' :
@@ -263,10 +265,21 @@
             function ecoResetHighlight(e) {
                 ecoFeature.resetStyle(e.target);
             }
-
+	    // On Mouseout reset to original for neighborhood file
+	    function neighborResetHighlight(e) {
+		 neighborhoodFeature.resetStyle(e.target);
+	    }
             // listener that zooms to the zipcode
             function zoomToFeature(e) {
                 map.fitBounds(e.target.getBounds());
+            }
+	    // Trigger to call functions on different events for Neighborhoods
+            function neighborOnEachFeature(feature, layer) {
+                layer.on({
+                    mouseover: highlightFeature,
+                    mouseout: neighborResetHighlight,
+                    click: zoomToFeature
+                });
             }
 
             // Trigger to call functions on different events for Race
@@ -286,6 +299,13 @@
                     click: zoomToFeature
                 });
             }
+	    //loading neighborhoods geojson file
+            $.getJSON("geojson/Neighborhoods.geojson", function(data){
+                neighborhoodFeature = L.geoJSON(data, {
+                    onEachFeature: neighborOnEachFeature
+                });
+                neighborhoodFeature.addTo(neighborhoods);
+            });
 
             // Loading racial geojson file
             $.getJSON("geojson/racial.geojson", function(data) {
@@ -376,23 +396,6 @@
                 //L.geoJson(data).addTo(map);
             });
 
-            $.getJSON("geojson/race.geojson", function(data) {
-                L.geoJSON(data, {
-                    onEachFeature: onEachFeature
-                }).addTo(race);
-            });
-            $.getJSON("geojson/eco.geojson", function(data) {
-                L.geoJSON(data, {
-                    onEachFeature: onEachFeature
-                }).addTo(eco);
-            });
-
-            var overlays = {
-                "Harbour": harbour,
-                "Race": race,
-                "Economic": eco
-            };
-
             // Add home, forward & backward button uses Leaflet.NavBar package
             // https://github.com/davidchouse/Leaflet.NavBar
             //L.control.layers(null, overlays).addTo(map);
@@ -462,36 +465,54 @@
                 }
             );
             //turn racial density on and off
-            $('#raceLayer').click(function(event){
-                    event.preventDefault();
-                    if (map.hasLayer(race)){
-                        map.removeLayer(race);
-			map.removeControl(legendR);
-                        $('#rac').prop('checked', false);
-                    }else{
-                        map.addLayer(race);
-			legendR.addTo(map);
-                        //uncheck toggle
-                        $('#rac').prop('checked', true);
-
-                    }
-
-                }
-            );
-            //turn economic densities on and off
-            $('#ecoLayer').click(function(event){
-                    event.preventDefault();
-                    if (map.hasLayer(eco)){
+        $('#raceLayer').click(function(event){
+                event.preventDefault();
+                if (map.hasLayer(race)){
+                    map.removeLayer(race);
+                    $('#rac').prop('checked', false);
+                }else{
+                    if (map.hasLayer(eco) ){
                         map.removeLayer(eco);
-                        $('#eco').prop('checked', false);
-                    }else{
-                        map.addLayer(eco);
-                        //uncheck toggle
-                        $('#eco').prop('checked', true);
                     }
+                    map.addLayer(race);
+                    //uncheck toggle
+                    $('#rac').prop('checked', true);
 
                 }
-            );
+
+            }
+        );
+        //turn economic densities on and off
+        $('#ecoLayer').click(function(event){
+                event.preventDefault();
+                if (map.hasLayer(eco)){
+                    map.removeLayer(eco);
+                    $('#eco').prop('checked', false);
+                }else{
+                    if (map.hasLayer(race) ){
+                        map.removeLayer(race);
+                    }
+                    map.addLayer(eco);
+                    //uncheck toggle
+                    $('#eco').prop('checked', true);
+                }
+
+            }
+        );
+        //turn neighborhoods overlay on and off
+        $('#neighborhoods').click(function(event){
+                event.preventDefault();
+                if (map.hasLayer(neighborhoods)){
+                    map.removeLayer(neighborhoods);
+                    $('#neighborhoods').prop('checked', false);
+                }else{
+                    map.addLayer(neighborhoods);
+                    //uncheck toggle
+                    $('#neighborhoods').prop('checked', true);
+                }
+
+            }
+        );
 
 		var searchboxControl=createSearchboxControl();
         var control = new searchboxControl({});
