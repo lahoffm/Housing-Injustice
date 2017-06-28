@@ -166,7 +166,11 @@
             // initialize the map
             // Atlanta Coordinates 33.74, -84.38
             var map = L.map('map').setView([33.7490, -84.3880], 13);
-
+	    var clickedIcon = L.Icon.extend({
+            options:{iconUrl: "images/h2.png",
+            iconSize: [30,35] }
+        });
+            var highlight = null;
             // load a tile layer
             L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 22,
@@ -191,14 +195,14 @@
             var eco = L.layerGroup();
             var raceFeature, ecoFeature;
 
-            // Choose color for Race
-            function getColorRace(d) {
-                return d >= 65.9 ? '#993404' :
-                    d >= 45.9 ? '#d95f0e' :
-                        d >= 28.1 ? '#fe9929' :
-                            d >= 14.3 ? '#fed98e' :
-                                '#ffffd4';
-            }
+              // Choose color for Race
+        function getColorRace(d) {
+            return d >= 65.9 ? '#e83b5d' :
+                d >= 45.9 ? '#eb5674' :
+                    d >= 28.1 ? '#ee728a' :
+                        d >= 14.3 ? '#f291a5' :
+                            '#f7bbc7';
+        }
 
             // Setting color for race attribute of map
             function raceColor(feature) {
@@ -213,14 +217,14 @@
             }
 
 
-            // Choose color for Economic data
-            function getColorEco(d) {
-                return d >= 106516 ? '#eff3ff' :
-                    d >= 79578 ? '#bdd7e7' :
-                        d >= 59904 ? '#6baed6' :
-                            d >= 42204 ? '#3182bd' :
-                                '#08519c';
-            }
+           // Choose color for Economic data
+        function getColorEco(d) {
+            return d >= 106516 ? '#ffffff' :
+                d >= 79578 ? '#ccf0c6' :
+                    d >= 59904 ? '#8ade7d' :
+                        d >= 42204 ? '#45c332' :
+                            '#3daa2c';
+        }
 
             // Setting color for economic attribute of map
             function ecoColor(feature) {
@@ -302,22 +306,31 @@
             });
 
             // load GeoJSON for harbour property information
-            $.getJSON("geojson/harbour.geojson", function(data) {
+            $.getJSON("geojson/harbourAll.geojson", function(data) {
                 // custom icon
                 var harbourIcon = L.icon({
-                    iconUrl: 'images/h4.png',
+                    iconUrl: 'images/h1.png',
                     iconSize: [25, 30]
                 });
-                L.geoJson(data, {
-                    pointToLayer: function(feature, latlng) {
-                        //return (commented out to stop displayed markers)
-                        return L.marker(latlng, {
-                            icon: harbourIcon
-                        }).addTo(harbour);
-
-                    },
+               L.geoJson(data, {
+                pointToLayer: function(feature, latlng) {
+                    //return (commented out to stop displayed markers)
+                    mark = L.marker(latlng, {
+                        icon: harbourIcon
+                    });
+                    return mark.addTo(harbour);
+                },
                     onEachFeature: function onEachFeature(feature,layer){
                         layer.on('click', function (e) {
+			if (highlight !== null){
+                            //set regular default icon
+                            highlight.setIcon(harbourIcon);
+                            highlight = null;
+                        }
+                        else{
+                            highlight = e.target;
+                            e.target.setIcon(new clickedIcon);
+                        }
                             //hide the "click a harbour property" sentence
                             $("#overlay-header").html("");
                             $("#pd").html("");
@@ -330,14 +343,14 @@
                             var result = JSON.parse(information);
                             //display the key and value for each json pair
                             $.each(result,function(k,val){
-                                if (k == "ATLANTA.HOMESTEAD.EXEMPTION.CODE"){
-                                    $('#pd').append("Exemption Code: " + val + '<br/>');
-                                }
-                                else if(k == "FULTON.HOMESTEAD.EXEMPTION.CODE"){
-                                    $('#pd').append("Fult Exemption: " + val + '<br/>');
+                                
+                                if (k == "PARCEL.ID" || k == "Owner" || k == "OwnerAddr1" ||
+                                k == "OwnerAddr2" || k == "TotAppr" || k == "Zip" || k == "Address"
+                                || k == "Harbour..1..current2..past"){
+                                    $('#pd').append(k + " : " + val + '<br/>');
                                 }
                                 else{
-                                    $('#pd').append(k + " : " + val + '<br/>');
+                                    //$('#pd').append(k + " : " + val + '<br/>');
                                 }
 
                                 }
