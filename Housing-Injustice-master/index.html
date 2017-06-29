@@ -253,6 +253,7 @@
                 if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                     layer.bringToFront();
                 }
+		info.update(layer.feature.properties);
             }
 
             // On Mouseout reset to original for race file
@@ -267,6 +268,7 @@
 	    // On Mouseout reset to original for neighborhood file
 	    function neighborResetHighlight(e) {
 		 neighborhoodFeature.resetStyle(e.target);
+		 info.update();   
 	    }
             // listener that zooms to the zipcode
             function zoomToFeature(e) {
