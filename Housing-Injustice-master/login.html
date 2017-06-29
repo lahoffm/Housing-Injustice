@@ -4,6 +4,7 @@
         <title>Login</title>
         <!--Import Google Icon Font-->
         <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <!--Import materialize.css-->
         <link type="text/css" rel="stylesheet" href="css/materialize.css" media="screen,projection"/>
         <!--Let browser know website is optimized for mobile-->
@@ -65,15 +66,15 @@
                     <div class="col s6 offset-s3">
                         <!-- login form  -->
                         <div class="z-depth-3" style="background-color: #563f46">
-                            <form class="login_form" >
+                            <form class="login_form" id="login">
                                 <div>
                                     <label style="color:white;"><b>Username</b></label>
-                                    <input type="text" placeholder="Enter Username" name="uname" required>
+                                    <input type="text" placeholder="Enter Username" name="uname" id="uname" required>
 
                                     <label style="color:white;"><b>Password</b></label>
-                                    <input type="password" placeholder="Enter Password" name="psw" required>
+                                    <input type="password" placeholder="Enter Password" name="psw" id="psw" required>
 
-                                    <button class="login_btn" type="submit">Login</button>
+                                    <button class="login_btn" type="submit" id="submit">Login</button>
                                     <input type="checkbox" checked="checked" name="remember" value="remember" id="rememberMe">
                                     <label for="rememberMe">Remember Me</label>
                                 </div>
@@ -109,7 +110,30 @@
         });
 
     </script>
-
+    <script>
+		$("#login").submit(function(event){
+			event.preventDefault();
+			uname=document.getElementById("uname").value;
+			psw=document.getElementById("psw").value;
+			$.ajax({
+				type: "GET",
+				url: 'logDoc.php',
+				data: { uname : uname, psw: psw },
+				async: false,
+				success: function(data)
+				{
+					try{
+						data=JSON.parse(data);
+						alert(data);
+					}
+					catch(e){
+						window.open ('index.html','_self',false)
+					}
+				}
+			});
+			
+		});
+	</script>
     </body>
 
 
