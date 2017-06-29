@@ -420,7 +420,6 @@
 
                 return div;
             };
-	legendR.addTo(map);
 	
         //add control for displaying neighborhood name on mouse over
         var info = L.control({
@@ -488,12 +487,14 @@
                 event.preventDefault();
                 if (map.hasLayer(race)){
                     map.removeLayer(race);
+		    legendR.removeFrom(map);
                     $('#rac').prop('checked', false);
                 }else{
                     if (map.hasLayer(eco) ){
                         map.removeLayer(eco);
                     }
                     map.addLayer(race);
+		    legendR.addTo(map);
                     //uncheck toggle
                     $('#rac').prop('checked', true);
 
