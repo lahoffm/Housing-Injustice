@@ -20,10 +20,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <!--Import jQuery before materialize.js-->
     <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script> -->
-    <script type="text/javascript" src="js/materialize.js"></script>
+    <script type="text/javascript" src="js/materialize.js"></script>	
+	<!-- Import Chart.js (MIT License - see Chart.js source) for demo bar graph when clicking on markers -->
+	<script type="text/javascript" src="js/Chart.js"></script>
     <!--created stylesheet for juma -->
     <link type="text/css" rel="stylesheet" href="css/juma_style.css" media="screen,projection"/>
-
     <link href="searchbox.css" rel="stylesheet" />
 
     <!--Creates color changing effect for the background of pages -->
@@ -328,6 +329,7 @@
 
             // load GeoJSON for harbour property information
             $.getJSON("geojson/harbourAll.geojson", function(data) {
+
                 // custom icon
                 var harbourIcon = L.icon({
                     iconUrl: 'images/h1.png',
@@ -343,7 +345,8 @@
                 },
                     onEachFeature: function onEachFeature(feature,layer){
                         layer.on('click', function (e) {
-			if (highlight !== null){
+						
+						if (highlight !== null){
                             //set regular default icon
                             highlight.setIcon(harbourIcon);
                             highlight = null;
@@ -365,17 +368,102 @@
                             //display the key and value for each json pair
                             $.each(result,function(k,val){
                                 
-                                if (k == "PARCEL.ID" || k == "Owner" || k == "OwnerAddr1" ||
-                                k == "OwnerAddr2" || k == "TotAppr" || k == "Zip" || k == "Address"
-                                || k == "Harbour..1..current2..past"){
-                                    $('#pd').append(k + " : " + val + '<br/>');
-                                }
-                                else{
-                                    //$('#pd').append(k + " : " + val + '<br/>');
-                                }
-
+									if (k == "PARCEL.ID" || k == "Owner" || k == "OwnerAddr1" ||
+									k == "OwnerAddr2" || k == "TotAppr" || k == "Zip" || k == "Address"
+									|| k == "Harbour..1..current..2..past."){
+										$('#pd').append(k + " : " + val + '<br/>');
+									}
+									else{
+										//$('#pd').append(k + " : " + val + '<br/>');
+									}
+		
                                 }
                             );
+							
+						
+							//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+							// For the bar graph demo (FAKE DATA, eventually supposed to be "dollars Harbour bought it for", "dollars Harbour sold it for", "date of sale", "who they sold it to")
+
+							var price_bought = result["TotAppr"];
+							var price_sold = result["Zip"];
+							var date_sold = "Unknown";
+							var owner_sold_to = "Unknown";
+
+							// More readable info about current & past owner.
+							$('#pd').append("<br/>Current owner name: <b>" + result["Owner"] + "</b><br/>");
+							var harbour_status = parseInt(result["Harbour..1..current..2..past."]);
+							if (harbour_status == 1){ 
+								$('#pd').append("<br/>Harbour is current owner.<br/>");
+							} else if (harbour_status == 2) {
+								$('#pd').append("<br/>Harbour was past owner.<br/>Date sold: <b>" + date_sold + "</b><br/>Owner sold to: <b>" + owner_sold_to + "</b><br/>");
+							} else {
+								$('#pd').append("<br/>Harbour current/past status unknown.<br/>"); // TODO figure out what values 0 and 3 mean in the CSV, and if any other possible values, and if parseInt will always work
+							}
+
+							// if Harbour was past owner, display price they bought it for, price they sold it for and profit/loss
+							if (harbour_status == 2){ 
+								if (price_bought == 'NA' || price_sold == 'NA'){ // TODO check if 'NA' is the only way to indicate invalid price bought/sold
+									$('#pd').append('Price bought and/or sold is not available<br/>');
+								} else {
+									price_bought = parseFloat(price_bought); // TODO check if all numbers guaranteed to be in correct format
+									price_sold = parseFloat(price_sold); 	 // TODO check if all numbers guaranteed to be in correct format
+									if (isNaN(price_bought) || isNaN(price_sold)){
+										$('#pd').append('Price bought and/or sold is in incorrect format (could not convert string to number)<br/>');
+									} else {
+										var profit = price_sold - price_bought;						
+										if (profit >= 0){
+											var profit_str = "Profit";
+											var dollar_color = "green";
+											var barcolor = 'rgba(0, 255, 0, 1)'; // red bar indicates loss
+										} else {
+											var profit_str = "Loss";
+											var dollar_color = "red";
+											var barcolor = 'rgba(255, 0, 0, 1)'; // green bar indicates profit
+										}
+										
+										$('#pd').append("Bought for: <b>$" + price_bought + " (THIS IS FAKE DATA)</b><br/>Sold for: <b>$" + price_sold +
+												" (THIS IS FAKE DATA)</b><br/>" + profit_str + ": <b style='color:" + dollar_color + ";'>$" + Math.abs(profit) + " (THIS IS FAKE DATA)</b><br/>");
+
+										// Make the bar graph - uses Canvas.js
+										$('#pd').append('<br/><canvas id="property_finances_graph" width="200" height="200"></canvas>'); // TODO make sure it looks good in browsers/mobile
+										var ctx = document.getElementById("property_finances_graph").getContext('2d'); // TODO works in Internet Explorer?
+										var myChart = new Chart(ctx, {
+											type: 'bar',
+											data: {
+												labels: ["Bought", "Sold", "Profit"],
+												datasets: [{
+													label: '',
+													data: [price_bought, price_sold, profit],
+													backgroundColor: [
+														'rgba(0, 0, 255, 1)',
+														'rgba(0, 0, 255, 1)',
+														barcolor,
+													],
+													borderColor: [
+														'rgba(0,0,0,1)',
+														'rgba(0,0,0,1)',
+														'rgba(0,0,0,1)',
+													],
+													borderWidth: 1
+												}]
+											},
+											options: {
+												legend: {display: false},
+											    title: { display: true, text: '(THIS IS FAKE DATA)' },
+												scales: {
+													yAxes: [{
+														ticks: { beginAtZero:true },
+														scaleLabel: { display: true, labelString: "Dollars" }
+													}]
+												}
+											}
+										});
+										
+									}
+								}
+							}							
+							// End bar graph demo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+							
                             //add the edit button giving user option to edit
                             $('#edit_button').append(" <a class='btn-floating btn-mini blue' style='float:right' href='#modal1'> <i class='large material-icons'>mode_edit</i> </a>");
                             //add the timeline button for timeline view
