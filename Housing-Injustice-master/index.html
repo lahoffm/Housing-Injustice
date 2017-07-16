@@ -21,7 +21,7 @@
     <!--Import jQuery before materialize.js-->
     <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script> -->
     <script type="text/javascript" src="js/materialize.js"></script>	
-	<!-- Import Chart.js (MIT License - see Chart.js source) for demo bar graph when clicking on markers -->
+	<!-- Import Chart.js (MIT License - see Chart.js source) for bar graph / line graph when clicking on markers -->
 	<script type="text/javascript" src="js/Chart.js"></script>
     <!--created stylesheet for juma -->
     <link type="text/css" rel="stylesheet" href="css/juma_style.css" media="screen,projection"/>
@@ -190,6 +190,7 @@
                 iconSize: [30,35] }
         });
         var highlight = null;
+		
         // Layer Harbour
         var harbour = L.layerGroup();
         var race = L.layerGroup();
@@ -197,7 +198,7 @@
         var neighborhoods = L.layerGroup();
         var raceFeature, ecoFeature, neighborhoodFeature;
 		
-              // Choose color for Race
+        // Choose color for Race
         function getColorRace(d) {
             return d >= 65.9 ? '#e83b5d' :
                 d >= 45.9 ? '#eb5674' :
@@ -254,7 +255,7 @@
                 if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                     layer.bringToFront();
                 }
-		info.update(layer.feature.properties);
+				info.update(layer.feature.properties);
             }
 
             // On Mouseout reset to original for race file
@@ -365,24 +366,10 @@
                             //$('#pd').append("<p style='float: left'>Address: </p>"  + e.target.feature.properties.Address);
                             //objectify string variable
                             var result = JSON.parse(information);
-                            //display the key and value for each json pair
-                            $.each(result,function(k,val){
-                                
-									if (k == "PARCEL.ID" || k == "Owner" || k == "OwnerAddr1" ||
-									k == "OwnerAddr2" || k == "TotAppr" || k == "Zip" || k == "Address"
-									|| k == "Harbour..1..current..2..past."){
-										$('#pd').append(k + " : " + val + '<br/>');
-									}
-									else{
-										//$('#pd').append(k + " : " + val + '<br/>');
-									}
-		
-                                }
-                            );
-							
 						
 							//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-							// For the bar graph demo (FAKE DATA, eventually supposed to be "dollars Harbour bought it for", "dollars Harbour sold it for", "date of sale", "who they sold it to")
+							// For the bar graph  & line graph demo
+							// (FAKE DATA, eventually supposed to be "dollars Harbour bought it for", "dollars Harbour sold it for", "date of sale", "who they sold it to")
 
 							var price_bought = result["TotAppr"];
 							var price_sold = result["Zip"];
@@ -390,14 +377,14 @@
 							var owner_sold_to = "Unknown";
 
 							// More readable info about current & past owner.
-							$('#pd').append("<br/>Current owner name: <b>" + result["Owner"] + "</b><br/>");
+							$('#pd').append("Current owner name: <b>" + result["Owner"] + "</b><br/><br/>");
 							var harbour_status = parseInt(result["Harbour..1..current..2..past."]);
 							if (harbour_status == 1){ 
-								$('#pd').append("<br/>Harbour is current owner.<br/>");
+								$('#pd').append("Harbour is current owner.<br/>");
 							} else if (harbour_status == 2) {
-								$('#pd').append("<br/>Harbour was past owner.<br/>Date sold: <b>" + date_sold + "</b><br/>Owner sold to: <b>" + owner_sold_to + "</b><br/>");
+								$('#pd').append("Harbour was past owner.<br/>Date sold: <b>" + date_sold + "</b><br/>Owner sold to: <b>" + owner_sold_to + "</b><br/>");
 							} else {
-								$('#pd').append("<br/>Harbour current/past status unknown.<br/>"); // TODO figure out what values 0 and 3 mean in the CSV, and if any other possible values, and if parseInt will always work
+								$('#pd').append("Harbour current/past status unknown.<br/>"); // TODO figure out what values 0 and 3 mean in the CSV, and if any other possible values, and if parseInt will always work
 							}
 
 							// if Harbour was past owner, display price they bought it for, price they sold it for and profit/loss
@@ -425,7 +412,7 @@
 												" (THIS IS FAKE DATA)</b><br/>" + profit_str + ": <b style='color:" + dollar_color + ";'>$" + Math.abs(profit) + " (THIS IS FAKE DATA)</b><br/>");
 
 										// Make the bar graph - uses Canvas.js
-										$('#pd').append('<br/><canvas id="property_finances_graph" width="200" height="200"></canvas>'); // TODO make sure it looks good in browsers/mobile
+										$('#pd').append('<br/><canvas id="property_finances_graph" width=200 height=200></canvas>'); // TODO make sure it looks good in browsers/mobile
 										var ctx = document.getElementById("property_finances_graph").getContext('2d'); // TODO works in Internet Explorer?
 										var myChart = new Chart(ctx, {
 											type: 'bar',
@@ -461,8 +448,80 @@
 										
 									}
 								}
-							}							
-							// End bar graph demo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+							}
+
+							// Make the line graph of property sale price vs. date (FAKE DATA)
+							// sale_price_dates should be monotonically increasing (earliest to most recent date)
+							var sale_price_dates = [new Date(2011, 0, 2), new Date(2012, 5, 30), new Date(2013, 3, 10), new Date (2014, 3, 13)]; // year, month from 0-11, day from 1-31
+							var sale_prices = [10000, 20000, 15000, 50000]; // Should be same length as sale_price_dates
+							var xy_data = []; // xy data for line graph. X is year + fraction of year, y is sale price in dollars
+							
+							for (var idx = 0; idx < sale_price_dates.length; idx++){
+					
+								// Compute approximate fraction of the year, i.e. Jan 1, 2008 is plotted as (2008 + 1/365)
+								// 		The fractional part of the year could be wrong by a small amount.
+								// 		For example we always divide by 365, ignoring leap years.
+								// 		But for visualization it doesn't matter since fraction is close to actual fraction
+								// 		We compute the "approximate day in year" as the difference between sale date & Jan. 1 of the same year (plus 1 so Jan 1 is day 1)
+								//	    Doesn't account for the hours in the day perhaps being different because of daylight savings time
+								// 		But it won't be wrong by more than a day.
+								var january1 = new Date(sale_price_dates[idx].getFullYear(), 0, 1); // January 1 of the sale price year
+								var approx_day_in_year = Math.round((sale_price_dates[idx] - january1)/24/60/60/1000) + 1; // converts from ms to days
+								var fraction_of_year = approx_day_in_year/365; // doesn't account for leap years but we don't care because won't affect visuals
+								xy_data.push({x: sale_price_dates[idx].getFullYear() + fraction_of_year,
+											  y: sale_prices[idx]});
+							}
+							
+							$('#pd').append('<br/><canvas id="sale_prices_graph" width="200" height="200"></canvas>');
+							var ctx2 = document.getElementById("sale_prices_graph").getContext('2d'); // TODO works in Internet Explorer?
+							
+							var scatterChart = new Chart(ctx2, {
+								type: 'scatter',
+								data: {
+									datasets: [{
+										data: xy_data,
+										fill: false,
+										borderColor: 'rgba(0, 255, 0, 1)',
+										pointBackgroundColor: 'rgba(0,0,0,1)',
+										pointBorderColor: 'rgba(0, 0, 0, 1)'
+									}]
+								},
+								options: {
+									elements: { line: { tension: 0 } }, // disables bezier curves
+									legend: {display: false},
+									title: { display: true, text: '(THIS IS FAKE DATA)' },
+									scales: {
+										yAxes: [{
+											ticks: { beginAtZero:true },
+											scaleLabel: { display: true, labelString: "Sale price, dollars" }
+										}],
+										xAxes: [{
+											type: 'linear',
+											position: 'bottom',
+											scaleLabel: { display: true, labelString: "Year" }
+										}]
+									}
+								}
+							});
+							
+							$('#pd').append('<br/><b><h2 id="overlay-header"  style="text-decoration: underline;">More information</h2></b>');
+							// End bar graph / line graph demo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+							
+							
+							//display the key and value for each json pair
+                            $.each(result,function(k,val){
+                                
+									if (k == "PARCEL.ID" || k == "Owner" || k == "OwnerAddr1" ||
+									k == "OwnerAddr2" || k == "TotAppr" || k == "Zip" || k == "Address"
+									|| k == "Harbour..1..current..2..past."){
+										$('#pd').append(k + " : " + val + '<br/>');
+									}
+									else{
+										//$('#pd').append(k + " : " + val + '<br/>');
+									}
+		
+                                }
+                            );
 							
                             //add the edit button giving user option to edit
                             $('#edit_button').append(" <a class='btn-floating btn-mini blue' style='float:right' href='#modal1'> <i class='large material-icons'>mode_edit</i> </a>");

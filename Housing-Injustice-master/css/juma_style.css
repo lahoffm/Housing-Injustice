@@ -67,10 +67,10 @@ main.bott_main {
 /*display box for property information */
 .map-overlay{
     position: absolute;
-    top: 210px;
+    top: 90px;
     /*bottom: 450px;*/
     right: 9px;
-    width: 200px;
+    width: 250px;
     background: rgba(255, 255, 255, 0.8);
     /*margin-right: 20px;*/
     font-family: Arial, sans-serif;
